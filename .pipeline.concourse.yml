@@ -1,0 +1,77 @@
+jobs:
+- name: elusivebot-frontend
+  plan:
+  - get: elusivebot-frontend-git
+    trigger: true
+  - task: build-frontend
+    config:
+      platform: linux
+      # NOTE: See elusivebot-http's pipeline YAML for why caching /node_modules and not /usr/local/lib/node_modules
+      caches:
+      - path: /node_modules/
+      inputs:
+      - name: elusivebot-frontend-git
+      outputs:
+      - name: elusivebot-frontend
+      image_resource:
+        name: node-20
+        type: registry-image
+        source:
+          repository: node
+          tag: 20
+      params:
+        NEXT_TELEMETRY_DISABLED: "1"
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -ex
+          cp -r /usr/local/lib/node_modules/* /node_modules/
+          rm -rf /usr/local/lib/node_modules
+          ln -s /node_modules /usr/local/lib/node_modules
+          cd elusivebot-frontend-git
+          npm ci
+          npm run build
+          cp -r out ../elusivebot-frontend
+          cp Dockerfile ../elusivebot-frontend
+
+  - task: build-image
+    privileged: true
+    config:
+      platform: linux
+      caches:
+      - path: cache
+      image_resource:
+        type: registry-image
+        source:
+          repository: concourse/oci-build-task
+      inputs:
+      - name: elusivebot-frontend
+      outputs:
+      - name: image
+      params:
+        CONTEXT: elusivebot-frontend
+      run:
+        path: build
+  - put: elusivebot-frontend-image
+    params:
+      image: image/image.tar
+
+resources:
+- name: elusivebot-frontend-git
+  type: git
+  icon: github
+  source:
+    uri: https://github.com/elusivebot/elusivebot-frontend.git
+    username: ((github.username))
+    password: ((github.password))
+- name: elusivebot-frontend-image
+  type: registry-image
+  icon: docker
+  source:
+    repository: ((docker.host))/elusivebot/frontend
+    username: ((docker.username))
+    password: ((docker.password))
+    tag: latest
+
