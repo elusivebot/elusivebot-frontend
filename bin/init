@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -ex
+
+if [ "$PWD" != "$1" ]; then
+        mkdir -p $1
+        for target in .eslintrc.json Dockerfile bin next.config.mjs package-lock.json package.json postcss.config.mjs public src tailwind.config.ts tsconfig.json; do
+                ln -s $PWD/$target $1/$target
+        done
+fi
+
+npm install
+
