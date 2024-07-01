@@ -4,4 +4,4 @@ set -ex
 
 npm run build
 
-sudo docker build -t docker.degrendel.com/elusivebot/frontend:latest .
+sudo docker build -t docker.degrendel.com/elusivebot/frontend:latest -f `readlink -f Dockerfile` .
