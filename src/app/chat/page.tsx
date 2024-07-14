@@ -1,17 +1,32 @@
 'use client';
 
-import { useState } from 'react';
-import { io } from 'socket.io-client';
+import { useState, useEffect } from 'react';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
+
+let socket;
 
 export default function Chat() {
   const [history, setHistory] = useState('');
   const [message, setMessage] = useState('');
 
+  const { sendMessage, lastMessage, readyState } = useWebSocket(process.env.NEXT_PUBLIC_BACKEND_URL);
+
+  useEffect(() => {
+    if (readyState === ReadyState.OPEN) {
+      console.log('Connected!');
+    }
+  }, [readyState]);
+
+  useEffect(() => {
+    console.log(`Got message ${lastMessage}`);
+  }, [lastMessage]);
+
+
   async function onSend(e) {
     e.preventDefault();
     console.log(message);
-    setHistory(history + "> " + message + "\n");
-    // TODO: Send message to backend!
+    setHistory((history) => history.concat(`> ${message}\n`));
+    sendMessage(message);
   }
 
   function onMessageChange(e) {
