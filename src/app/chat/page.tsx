@@ -18,7 +18,10 @@ export default function Chat() {
   }, [readyState]);
 
   useEffect(() => {
-    console.log(`Got message ${lastMessage}`);
+    if (lastMessage?.data) {
+      console.log(`Got message ${lastMessage.data}`);
+      setHistory((history) => history.concat(`${lastMessage.data}\n`));
+    }
   }, [lastMessage]);
 
 
