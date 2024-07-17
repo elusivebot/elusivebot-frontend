@@ -39,8 +39,8 @@ export default function Chat() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <textarea readOnly value={history} />
-      <input type="text" value={message} onChange={onMessageChange} />
+      <textarea readOnly value={history} class="text-gray-900" />
+      <input type="text" value={message} onChange={onMessageChange} class="text-gray-900" />
       <button onClick={onSend}>Send</button>
     </main>
   );
