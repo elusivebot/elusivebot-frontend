@@ -39,8 +39,14 @@ export default function Chat() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <textarea readOnly value={history} class="text-gray-900" />
-      <input type="text" value={message} onChange={onMessageChange} class="text-gray-900" />
+      <textarea readOnly value={history} className="text-gray-900" />
+      <input type="text" value={message} onChange={onMessageChange} className="text-gray-900"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            onSend(e);
+          }
+        }}
+      />
       <button onClick={onSend}>Send</button>
     </main>
   );
