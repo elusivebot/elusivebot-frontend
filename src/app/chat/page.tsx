@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { ChangeEvent, KeyboardEvent, MouseEvent, useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 let socket;
@@ -12,10 +12,10 @@ interface History {
 }
 
 export default function Chat() {
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<History[]>([]);
   const [message, setMessage] = useState('');
 
-  const { sendMessage, lastMessage, readyState } = useWebSocket(process.env.NEXT_PUBLIC_BACKEND_URL);
+  const { sendMessage, lastMessage, readyState } = useWebSocket(process.env.NEXT_PUBLIC_BACKEND_URL!);
 
   useEffect(() => {
     if (readyState === ReadyState.OPEN) {
@@ -26,28 +26,28 @@ export default function Chat() {
   useEffect(() => {
     if (lastMessage?.data) {
       console.log(`Got message ${lastMessage.data}`);
-      setHistory([...history, { id: crypto.randomUUID(), self: false, message: lastMessage.data}]);
+      setHistory(history => [...history, { id: crypto.randomUUID(), self: false, message: lastMessage.data}]);
     }
   }, [lastMessage]);
 
 
-  async function onSend(e) {
+  async function onSend(e: KeyboardEvent | MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     console.log(message);
     setHistory([...history, { id: crypto.randomUUID(), self: true, message: message}]);
     sendMessage(message);
   }
 
-  function onMessageChange(e) {
+  function onMessageChange(e: ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     setMessage(e.target.value);
   }
 
-  function renderHistory(history) {
+  function renderHistory(history: History[]) {
     if (history.length) {
       const items = history.map(entry => {
         if (entry.self) {
-          return (<li key={entry.id}>> {entry.message}</li>)
+          return (<li key={entry.id}>&gt; {entry.message}</li>)
         } else {
           return (<li key={entry.id} className="text-right">{entry.message}</li>)
         }
