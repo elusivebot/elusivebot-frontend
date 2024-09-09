@@ -11,6 +11,12 @@ interface History {
   message: string,
 }
 
+function uuidv4() {
+  return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+    (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+  );
+}
+
 export default function Chat() {
   const [history, setHistory] = useState<History[]>([]);
   const [message, setMessage] = useState('');
@@ -26,7 +32,7 @@ export default function Chat() {
   useEffect(() => {
     if (lastMessage?.data) {
       console.log(`Got message ${lastMessage.data}`);
-      setHistory(history => [...history, { id: crypto.randomUUID(), self: false, message: lastMessage.data}]);
+      setHistory(history => [...history, { id: uuidv4(), self: false, message: lastMessage.data}]);
     }
   }, [lastMessage]);
 
@@ -34,7 +40,7 @@ export default function Chat() {
   async function onSend(e: KeyboardEvent | MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     console.log(message);
-    setHistory([...history, { id: crypto.randomUUID(), self: true, message: message}]);
+    setHistory([...history, { id: uuidv4(), self: true, message: message}]);
     sendMessage(message);
   }
 
